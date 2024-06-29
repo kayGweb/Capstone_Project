@@ -4,7 +4,7 @@ const Data = ({ maxSupply, totalSupply, cost, balance }) => {
 	return (
 		<div className="text-center">
 			<p>
-				<strong>Avaialbe to Mine:</strong>
+				<strong>Available to Mine:</strong>
 				&nbsp;{maxSupply - totalSupply}
 			</p>
 			<p>
@@ -13,6 +13,10 @@ const Data = ({ maxSupply, totalSupply, cost, balance }) => {
 			</p>
 			<p>
 				<strong>You own:</strong>
+				&nbsp;{balance.toString()} ETH
+			</p>
+			<p>
+				<strong>Token Id's You own:</strong>
 				&nbsp;{balance.toString()} ETH
 			</p>
 		</div>

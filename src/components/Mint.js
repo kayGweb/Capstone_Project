@@ -30,7 +30,7 @@ const Mint = ({ provider, nft, cost, setIsLoading }) => {
 			) : (
 				<Form.Group>
 					<Button style={{ width: "100%" }} variant="primary" type="submit">
-						Mint
+						Mint & Create Liqudity
 					</Button>
 				</Form.Group>
 			)}

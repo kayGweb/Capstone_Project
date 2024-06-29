@@ -1,0 +1,22 @@
+{
+	"id": "QmfKuxhBCH2cDv1cGKxnSJChjcfDY6bZFvr8fFjxzpLi1V",
+	"name": "#Bird12",
+	"description": "20 images of Bluebirds as a sample NFT JayBird project",
+	"image": "ipfs/QmfPZcNLSeopitShcTYtQDvrTzXc5Y6mCX5trJ5QBavgNY/bird12.png",
+	"edition": 1,
+	"date": 1649379902184,
+	"attributes": [
+		{
+			"trait_type": "Backgrounds",
+			"value": "badge, blue, black and pink"
+		},
+		{
+			"trait_type": "Textures",
+			"value": "Paper Stamp"
+		},
+		{
+			"trait_type": "Colors",
+			"value": "blue | purple | black"
+		}
+	]
+}

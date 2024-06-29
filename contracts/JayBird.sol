@@ -3,7 +3,7 @@ pragma solidity ^0.8.19;
 
 import "hardhat/console.sol";
 
-contract Token {
+contract JayBird {
     string public name;
     string public symbol;
     uint256 public decimals = 18;

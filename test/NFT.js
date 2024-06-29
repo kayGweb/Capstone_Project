@@ -8,11 +8,11 @@ const tokens = (n) => {
 const ether = tokens;
 
 describe("NFT", () => {
-	const NAME = "Dapp Punks";
-	const SYMBOL = "DP";
-	const COST = ether(2000000);
-	const MAX_SUPPLY = 25;
-	const BASE_URI = "ipfs://QmQ2jnDYecFhrf3asEWjyjZRX1pZSsNWG3qHzmNDvXa9qg/";
+	const NAME = "JayBird Collection";
+	const SYMBOL = "JBC";
+	const COST = ether(200);
+	const MAX_SUPPLY = 20;
+	const BASE_URI = "ipfs://QmfPZcNLSeopitShcTYtQDvrTzXc5Y6mCX5trJ5QBavgNY/";
 
 	let nft, deployer, minter;
 
@@ -70,11 +70,12 @@ describe("NFT", () => {
 			});
 
 			it("returns the address of the minter", async () => {
+				//console.log(minter.address);
+				//console.log(await nft.ownerOf(1));
 				expect(await nft.ownerOf(1)).to.equal(minter.address);
 			});
 
 			it("returns IPFS URI", async () => {
-				console.log(await nft.tokenURI(1));
 				expect(await nft.tokenURI(1)).to.equal(`${BASE_URI}1.json`);
 			});
 
@@ -154,13 +155,14 @@ describe("NFT", () => {
 			const NFT = await ethers.getContractFactory("NFT");
 			nft = await NFT.deploy(NAME, SYMBOL, COST, MAX_SUPPLY, ALLOW_MINTING_ON, BASE_URI);
 
-			transaction = await nft.connect(minter).mint(3, { value: ether(30) });
+			transaction = await nft.connect(minter).mint(3, { value: ether(600) });
 			result = await transaction.wait();
 		});
 
 		it("returns all the NFTs for a given owner", async () => {
 			let tokenIds = await nft.walletOfOwner(minter.address);
-			//console.log("owner Wallet", tokenIds);
+			//console.log("owner Wallet", await nft.walletOfOwner(minter.address));
+			//console.log * ("token length", tokenIds.length);
 			expect(tokenIds.length).to.equal(3);
 			expect(tokenIds[0].toString()).to.equal("1");
 		});

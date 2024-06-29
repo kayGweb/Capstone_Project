@@ -2,6 +2,23 @@
 	"31337": {
 		"nft": {
 			"address": "0x5FbDB2315678afecb367f032d93F642f64180aa3"
+		},
+		"metadata": {
+			"1": "bird5.png",
+			"2": "bird6.png",
+			"3": "bird7.png",
+			"4": "bird8.png",
+			"5": "bird9.png",
+			"6": "bird10.png",
+			"7": "bird11.png",
+			"8": "bird12.png",
+			"9": "bird13.png",
+			"10": "bird14.png",
+			"11": "bird15.jpeg",
+			"12": "bird16.jpeg",
+			"13": "bird17.jpeg",
+			"14": "bird18.jpeg",
+			"15": "bird19.jpeg"
 		}
 	}
 }

@@ -2,11 +2,11 @@
 pragma solidity ^0.8.0;
 
 import "hardhat/console.sol";
-import "./Token.sol";
+import "./JayBird.sol";
 
 contract AMM {
-    Token public token1;
-    Token public token2;
+    JayBird public token1;
+    JayBird public token2;
     uint256 public token1Balance;
     uint256 public token2Balance;
     uint256 public K;
@@ -26,7 +26,7 @@ contract AMM {
         uint256 timestamp
     );
 
-    constructor(Token _token1, Token _token2) {
+    constructor(JayBird _token1, JayBird _token2) {
         token1 = _token1;
         token2 = _token2;
     }

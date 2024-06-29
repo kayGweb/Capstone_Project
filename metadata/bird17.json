@@ -1,0 +1,22 @@
+{
+	"id": "QmNf7MsVBJwhPJ7nLLTP8hKvszpEYheCCREHCpNMJTuEVT",
+	"name": "#Bird17",
+	"description": "20 images of Bluebirds as a sample NFT JayBird project",
+	"image": "ipfs/QmfPZcNLSeopitShcTYtQDvrTzXc5Y6mCX5trJ5QBavgNY/bird17.jpeg",
+	"edition": 1,
+	"date": 1649379902184,
+	"attributes": [
+		{
+			"trait_type": "Backgrounds",
+			"value": "blue, violet and beige"
+		},
+		{
+			"trait_type": "Textures",
+			"value": "Snowglobe"
+		},
+		{
+			"trait_type": "Colors",
+			"value": "blue | violet | white | black"
+		}
+	]
+}
