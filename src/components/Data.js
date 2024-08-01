@@ -15,10 +15,6 @@ const Data = ({ maxSupply, totalSupply, cost, balance }) => {
 				<strong>You own:</strong>
 				&nbsp;{balance.toString()} ETH
 			</p>
-			<p>
-				<strong>Token Id's You own:</strong>
-				&nbsp;{balance.toString()} ETH
-			</p>
 		</div>
 	);
 };

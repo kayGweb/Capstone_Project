@@ -7,13 +7,13 @@
 const hre = require("hardhat");
 
 async function main() {
-	//
+	//NFT Token Constants
 	const NAME = "JayBird Collection";
 	const SYMBOL = "JBC";
 	const MAX_SUPPLY = 20;
 	const BASE_URI = "ipfs/QmfPZcNLSeopitShcTYtQDvrTzXc5Y6mCX5trJ5QBavgNY/";
 	const COST = ethers.utils.parseUnits("200", "ether");
-	const NFT_MINT_DATE = (Date.now() + 60000).toString().slice(0, 10);
+	const NFT_MINT_DATE = (Date.now() + 6000000).toString().slice(0, 10);
 
 	// JayBird Token Constants
 	const TOKEN_NAME = "JayBird Token";
@@ -31,6 +31,12 @@ async function main() {
 	let jaybird = await JAYBIRD.deploy(TOKEN_NAME, SYMBOL_JAYBIRD, TOTAL_SUPPLY);
 	await jaybird.deployed();
 	console.log(`JayBird Token deployed to: ${jaybird.address}\n`);
+
+	// Deploy AMM
+	const AMM = await hre.ethers.getContractFactory("AMM");
+	let amm = await AMM.deploy(jaybird.address, nft.address);
+	await amm.deployed();
+	console.log(`AMM deployed to: ${amm.address}\n`);
 }
 
 // We recommend this pattern to be able to use async/await everywhere

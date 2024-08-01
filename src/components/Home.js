@@ -1,5 +1,6 @@
 import React from "react";
 import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 import { Container, Row, Col } from "react-bootstrap";
 import { ethers } from "ethers";
 import Countdown from "react-countdown";
@@ -12,6 +13,9 @@ import Mint from "./Mint";
 //IMG
 import preview from "../preview.png";
 
+// Redux: Import your store interactions here
+import { loadAccount, loadProvider, loadNetwork, loadContracts } from "../store/interactions";
+
 // ABIs: Import your contract ABIs here
 import NFT_ABI from "../abis/NFT.json";
 
@@ -19,8 +23,8 @@ import NFT_ABI from "../abis/NFT.json";
 import config from "../config.json";
 
 const Home = () => {
-	const [provider, setProvider] = useState(null);
-	const [account, setAccount] = useState(null);
+	let provider;
+	//const [account, setAccount] = useState("");
 	const [nft, setNFT] = useState(null);
 	const [revealTime, setRevealTime] = useState(0);
 	const [maxSupply, setMaxSupply] = useState(0);
@@ -30,23 +34,30 @@ const Home = () => {
 	const [isLoading, setIsLoading] = useState(true);
 	const [ownerid, setOwnerid] = useState(0);
 
+	const dispatch = useDispatch();
+
 	// fetch random bird
 	function randomInt(min, max) {
 		return Math.floor(Math.random() * (max - min + 1) + min);
 	}
 
 	const loadBlockchainData = async () => {
+		let account = "";
 		//Initiate provider
-		const provider = new ethers.providers.Web3Provider(window.ethereum);
-		setProvider(provider);
+		const provider = await loadProvider(dispatch);
+
+		// Fetch Account
+		account = await loadAccount(dispatch);
+
+		// fetch ChainId/Network
+		await loadNetwork(provider, dispatch);
+
+		// Load Contracts
+		await loadContracts(provider, dispatch);
 
 		// Initiate NFT contract
 		const nft = new ethers.Contract(config[31337].nft.address, NFT_ABI, provider);
 		setNFT(nft);
-
-		const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
-		const account = ethers.utils.getAddress(accounts[0]);
-		setAccount(account);
 
 		// fetch countdown
 		const allowMintingOn = await nft.allowMintingOn();
@@ -57,7 +68,7 @@ const Home = () => {
 		setOwnerid(owner);
 
 		const base_uri = await nft.baseURI();
-		for (let i = 0; i < owner.length; i++) {
+		for (let i = 0; i < ownerid.length; i++) {
 			console.log(`https://ipfs.io/${base_uri}${config[31337].metadata[owner[0]]}`);
 		}
 		//console.log(`https://ipfs.io/${base_uri}${config[31337].metadata[owner[0]]}`);
@@ -70,6 +81,7 @@ const Home = () => {
 		setIsLoading(false);
 	};
 
+	//eslint-disable-next-line react-hooks/exhaustive-deps
 	useEffect(() => {
 		if (isLoading) {
 			loadBlockchainData();
