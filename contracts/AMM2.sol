@@ -1,12 +1,10 @@
-//SPDX-License-Identifier: Unlicense
+// SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.0;
 
-import "hardhat/console.sol";
-import "./JayBird.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract AMM {
-    JayBird public token1;
+    IERC20 public token1;
     IERC20 public token2;
     uint256 public token1Balance;
     uint256 public token2Balance;
@@ -27,7 +25,7 @@ contract AMM {
         uint256 timestamp
     );
 
-    constructor(JayBird _token1, IERC20 _token2) {
+    constructor(IERC20 _token1, IERC20 _token2) {
         token1 = _token1;
         token2 = _token2;
     }
@@ -36,23 +34,16 @@ contract AMM {
         uint256 _token1Amount,
         uint256 _token2Amount
     ) external {
-        // Deposit Tokens
-        // Checks that token1 tranfer passed
         require(
             token1.transferFrom(msg.sender, address(this), _token1Amount),
             "failed to transfer token 1"
         );
-
-        // Checks that token1 tranfer passed
         require(
             token2.transferFrom(msg.sender, address(this), _token2Amount),
             "failed to transfer token 2"
         );
 
-        // Issue Shares
         uint256 share;
-
-        // Issue Shares
         if (totalShares == 0) {
             share = 100 * PRECISION;
         } else {
@@ -65,12 +56,10 @@ contract AMM {
             share = share1;
         }
 
-        // Manger Pool
         token1Balance += _token1Amount;
         token2Balance += _token2Amount;
         K = token1Balance * token2Balance;
 
-        // Update Shares
         totalShares += share;
         shares[msg.sender] += share;
     }
@@ -87,7 +76,6 @@ contract AMM {
         token1Amount = (token1Balance * _token2Amount) / token2Balance;
     }
 
-    // Returns amount of token2 received when swapping token1
     function calculateToken1Swap(
         uint256 _token1Amount
     ) public view returns (uint256 token2Amount) {
@@ -105,20 +93,13 @@ contract AMM {
     function swapToken1(
         uint256 _token1Amount
     ) external returns (uint256 token2Amount) {
-        //Calculate Token 2 Amount
         token2Amount = calculateToken1Swap(_token1Amount);
 
-        //Do Swap
-        //1.Transfer token1 tokens out of user wallet to contract
         token1.transferFrom(msg.sender, address(this), _token1Amount);
-        //2. Update the token1 balance in the contract
         token1Balance += _token1Amount;
-        //3. Update the token2 balance in the contract
         token2Balance -= token2Amount;
-        //4. Transfer token2 tokens from the contract to user wallet
         token2.transfer(msg.sender, token2Amount);
 
-        //Emit an Event
         emit Swap(
             msg.sender,
             address(token1),
@@ -131,7 +112,6 @@ contract AMM {
         );
     }
 
-    // Returns amount of token1 received when swapping token2
     function calculateToken2Swap(
         uint256 _token2Amount
     ) public view returns (uint256 token1Amount) {
@@ -143,26 +123,19 @@ contract AMM {
             token1Amount--;
         }
 
-        require(token1Amount < token1Balance, "swap amount to large");
+        require(token1Amount < token1Balance, "swap amount too large");
     }
 
     function swapToken2(
         uint256 _token2Amount
     ) external returns (uint256 token1Amount) {
-        //Calculate Token 2 Amount
         token1Amount = calculateToken2Swap(_token2Amount);
 
-        //Do Swap
-        //1.Transfer token1 tokens out of user wallet to contract
         token2.transferFrom(msg.sender, address(this), _token2Amount);
-        //2. Update the token1 balance in the contract
         token2Balance += _token2Amount;
-        //3. Update the token2 balance in the contract
         token1Balance -= token1Amount;
-        //4. Transfer token2 tokens from the contract to user wallet
         token1.transfer(msg.sender, token1Amount);
 
-        //Emit an Event
         emit Swap(
             msg.sender,
             address(token2),
@@ -183,13 +156,12 @@ contract AMM {
         token2Amount = (_share * token2Balance) / totalShares;
     }
 
-    //Removes Liquidity from the pool
     function removeLiquidity(
         uint256 _share
     ) external returns (uint256 token1Amount, uint256 token2Amount) {
         require(
             _share <= shares[msg.sender],
-            "cannot withdraw more share that you have"
+            "cannot withdraw more share than you have"
         );
         (token1Amount, token2Amount) = calculateWithdrawAmount(_share);
 
