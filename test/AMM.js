@@ -20,11 +20,12 @@ describe("AMM", () => {
 		liqudityProvider = accounts[1];
 		investor1 = accounts[2];
 		investor2 = accounts[3];
+		ERC20 = accounts[4];
 
 		//Deploy Token
 		const JayBird = await ethers.getContractFactory("JayBird");
 		token1 = await JayBird.deploy("JayBird", "JBT", "1000000");
-		token2 = await IERC20();
+		token2 = await IERC20(ERC20.address);
 
 		//Send Token1 to liquidity Provider
 		let transaction = await token1.connect(deployer).transfer(liqudityProvider.address, tokens(100000));

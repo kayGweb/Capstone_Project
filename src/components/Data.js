@@ -9,11 +9,11 @@ const Data = ({ maxSupply, totalSupply, cost, balance }) => {
 			</p>
 			<p>
 				<strong>Cost to Mint:</strong>
-				&nbsp;{ethers.utils.formatUnits(cost, "ether")} ETH
+				&nbsp;{ethers.utils.formatUnits(cost, "ether")} tPLS
 			</p>
 			<p>
 				<strong>You own:</strong>
-				&nbsp;{balance.toString()} ETH
+				&nbsp;{balance.toString()} tPLS
 			</p>
 		</div>
 	);

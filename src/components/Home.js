@@ -1,6 +1,6 @@
 import React from "react";
 import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Container, Row, Col } from "react-bootstrap";
 import { ethers } from "ethers";
 import Countdown from "react-countdown";
@@ -52,11 +52,15 @@ const Home = () => {
 		// fetch ChainId/Network
 		await loadNetwork(provider, dispatch);
 
+		const network = await provider.getNetwork();
+		const chainId = network.chainId;
+		//console.log(chainId);
+
 		// Load Contracts
-		await loadContracts(provider, dispatch);
+		await loadContracts(provider, dispatch, chainId);
 
 		// Initiate NFT contract
-		const nft = new ethers.Contract(config[31337].nft.address, NFT_ABI, provider);
+		const nft = new ethers.Contract(config[chainId].nft.address, NFT_ABI, provider);
 		setNFT(nft);
 
 		// fetch countdown
@@ -69,9 +73,9 @@ const Home = () => {
 
 		const base_uri = await nft.baseURI();
 		for (let i = 0; i < ownerid.length; i++) {
-			console.log(`https://ipfs.io/${base_uri}${config[31337].metadata[owner[0]]}`);
+			console.log(`https://ipfs.io/${base_uri}${config["metadata"].owner[0]}`);
 		}
-		//console.log(`https://ipfs.io/${base_uri}${config[31337].metadata[owner[0]]}`);
+		//console.log(`https://ipfs.io/${base_uri}${config["metadata"].owner[0]}`);
 
 		setMaxSupply(await nft.maxSupply());
 		setTotalSupply(await nft.totalSupply());

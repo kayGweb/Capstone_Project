@@ -8,23 +8,34 @@
 		},
 		"jaybird": {
 			"address": "0xe7f1725e7734ce288f8367e1bb143e90bb3f0512"
-		},
-		"metadata": {
-			"1": "bird5.png",
-			"2": "bird6.png",
-			"3": "bird7.png",
-			"4": "bird8.png",
-			"5": "bird9.png",
-			"6": "bird10.png",
-			"7": "bird11.png",
-			"8": "bird12.png",
-			"9": "bird13.png",
-			"10": "bird14.png",
-			"11": "bird15.jpeg",
-			"12": "bird16.jpeg",
-			"13": "bird17.jpeg",
-			"14": "bird18.jpeg",
-			"15": "bird19.jpeg"
 		}
+	},
+	"943": {
+		"nft": {
+			"address": "0x55bB5d42e98010d6a91Cc0111453a5a268Ad1aeC"
+		},
+		"amm": {
+			"address": "0x92319FbbF7D9eE8BE2f0252930Df38fDf67bd17a"
+		},
+		"jaybird": {
+			"address": "0xe675Adf42c76E107A5D607790fB763895Fc2025a"
+		}
+	},
+	"metadata": {
+		"1": "bird5.png",
+		"2": "bird6.png",
+		"3": "bird7.png",
+		"4": "bird8.png",
+		"5": "bird9.png",
+		"6": "bird10.png",
+		"7": "bird11.png",
+		"8": "bird12.png",
+		"9": "bird13.png",
+		"10": "bird14.png",
+		"11": "bird15.jpeg",
+		"12": "bird16.jpeg",
+		"13": "bird17.jpeg",
+		"14": "bird18.jpeg",
+		"15": "bird19.jpeg"
 	}
 }
