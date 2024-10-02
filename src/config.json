@@ -8,6 +8,9 @@
 		},
 		"jaybird": {
 			"address": "0xe7f1725e7734ce288f8367e1bb143e90bb3f0512"
+		},
+		"wrappedGasToken": {
+			"address": "0x976EA74026E726554dB657fA54763abd0C3a0aa9"
 		}
 	},
 	"943": {
@@ -19,6 +22,23 @@
 		},
 		"jaybird": {
 			"address": "0xe675Adf42c76E107A5D607790fB763895Fc2025a"
+		},
+		"wrappedGasToken": {
+			"address": "0x70499adEBB11Efd915E3b69E700c331778628707"
+		}
+	},
+	"369": {
+		"nft": {
+			"address": "0x55bB5d42e98010d6a91Cc0111453a5a268Ad1aeC"
+		},
+		"amm": {
+			"address": "0x92319FbbF7D9eE8BE2f0252930Df38fDf67bd17a"
+		},
+		"jaybird": {
+			"address": "0xe675Adf42c76E107A5D607790fB763895Fc2025a"
+		},
+		"wrappedGasToken": {
+			"address": "0x97Ac4a2439A47c07ad535bb1188c989dae755341"
 		}
 	},
 	"metadata": {

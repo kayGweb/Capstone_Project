@@ -29,7 +29,8 @@ contract AMM {
 
     constructor(JayBird _token1, IERC20 _token2) {
         token1 = _token1;
-        token2 = _token2;
+        token2 = IERC20(_token2);
+        //IERC20 public wrappedToken = IERC20(0x70499adEBB11Efd915E3b69E700c331778628707);
     }
 
     function addLiquidity(

@@ -2,8 +2,9 @@ import { useState } from "react";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import Spinner from "react-bootstrap/Spinner";
+import config from "../config.json";
 
-const Mint = ({ provider, nft, cost, setIsLoading }) => {
+const Mint = ({ provider, nft, cost, setIsLoading, amm }) => {
 	const [isWaiting, setIsWaiting] = useState(false);
 
 	const mintHandler = async (e) => {
@@ -12,9 +13,21 @@ const Mint = ({ provider, nft, cost, setIsLoading }) => {
 
 		try {
 			const signer = await provider.getSigner();
-			//console.log(signer);
+
+			//Subscribe to the mint event, save result to SQlLite DB
+
+			//Mint NFT
 			const transaction = await nft.connect(signer).mint(1, { value: cost });
 			await transaction.wait();
+
+			//Get NFT Link
+			//todo: Get the tokenID's from the mint event
+			let tokenID = 1;
+			const link = await nft.tokenURL(tokenID);
+			//Save link into redux store
+
+			//Manage the LIquidity pool
+			//const transaction2 = await amm.connect(signer).addLiquidity();
 		} catch {
 			window.alert("User Rejected or transaction reverted");
 			console.log("User Rejected or transaction reverted");

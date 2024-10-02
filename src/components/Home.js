@@ -18,12 +18,12 @@ import { loadAccount, loadProvider, loadNetwork, loadContracts } from "../store/
 
 // ABIs: Import your contract ABIs here
 import NFT_ABI from "../abis/NFT.json";
+import AMM_ABI from "../abis/AMM.json";
 
 // Config: Import your network config here
 import config from "../config.json";
 
 const Home = () => {
-	let provider;
 	//const [account, setAccount] = useState("");
 	const [nft, setNFT] = useState(null);
 	const [revealTime, setRevealTime] = useState(0);
@@ -33,6 +33,9 @@ const Home = () => {
 	const [balance, setBalance] = useState(0);
 	const [isLoading, setIsLoading] = useState(true);
 	const [ownerid, setOwnerid] = useState(0);
+	const [chainId, setChainId] = useState(0);
+	const [provider, setProvider] = useState(null);
+	const [amm, setAMM] = useState(null);
 
 	const dispatch = useDispatch();
 
@@ -45,6 +48,7 @@ const Home = () => {
 		let account = "";
 		//Initiate provider
 		const provider = await loadProvider(dispatch);
+		setProvider(provider);
 
 		// Fetch Account
 		account = await loadAccount(dispatch);
@@ -54,6 +58,7 @@ const Home = () => {
 
 		const network = await provider.getNetwork();
 		const chainId = network.chainId;
+		setChainId(chainId);
 		//console.log(chainId);
 
 		// Load Contracts
@@ -62,6 +67,10 @@ const Home = () => {
 		// Initiate NFT contract
 		const nft = new ethers.Contract(config[chainId].nft.address, NFT_ABI, provider);
 		setNFT(nft);
+
+		//Initiate AMM contract
+		const amm = new ethers.Contract(config[chainId].amm.address, AMM_ABI, provider);
+		setAMM(amm);
 
 		// fetch countdown
 		const allowMintingOn = await nft.allowMintingOn();
@@ -133,8 +142,8 @@ const Home = () => {
 							<div className="my-4 text-center">
 								<Countdown date={parseInt(revealTime)} className="h2" />
 							</div>
-							<Data maxSupply={maxSupply} totalSupply={totalSupply} cost={cost} balance={balance} />
-							<Mint provider={provider} nft={nft} cost={cost} setIsLoading={setIsLoading} />
+							<Data maxSupply={maxSupply} totalSupply={totalSupply} cost={cost} balance={balance} chainId={chainId} />
+							<Mint provider={provider} nft={nft} cost={cost} setIsLoading={setIsLoading} amm={amm} />
 						</Col>
 					</Row>
 				</>

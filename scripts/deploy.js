@@ -7,6 +7,8 @@
 const hre = require("hardhat");
 
 async function main() {
+	//
+	const WtPLS = "0x70499adEBB11Efd915E3b69E700c331778628707";
 	//NFT Token Constants
 	const NAME = "JayBird Collection";
 	const SYMBOL = "JBC";
@@ -32,9 +34,13 @@ async function main() {
 	await jaybird.deployed();
 	console.log(`JayBird Token deployed to: ${jaybird.address}\n`);
 
+	// ChainId for this network
+	const { chainId } = await hre.ethers.provider.getNetwork();
+	console.log(`chainId: ${chainId}`);
+
 	// Deploy AMM
 	const AMM = await hre.ethers.getContractFactory("AMM");
-	let amm = await AMM.deploy(jaybird.address, nft.address);
+	let amm = await AMM.deploy(jaybird.address, config[chainId].wrappedGasToken.address);
 	await amm.deployed();
 	console.log(`AMM deployed to: ${amm.address}\n`);
 }

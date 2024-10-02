@@ -10,7 +10,7 @@ import JAYBIRD_ABI from "../abis/JayBird.json";
 import AMM_ABI from "../abis/AMM.json";
 
 export const loadContracts = async (provider, dispatch, chainId) => {
-	console.log(chainId);
+	//console.log(chainId);
 	const nft = new ethers.Contract(config[chainId].nft.address, NFT_ABI, provider);
 	const jaybird = new ethers.Contract(config[chainId].jaybird.address, JAYBIRD_ABI, provider);
 	const amm = new ethers.Contract(config[chainId].amm.address, AMM_ABI, provider);
