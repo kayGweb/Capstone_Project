@@ -81,9 +81,9 @@ const Home = () => {
 		setOwnerid(owner);
 
 		const base_uri = await nft.baseURI();
-		for (let i = 0; i < ownerid.length; i++) {
-			console.log(`https://ipfs.io/${base_uri}${config["metadata"].owner[0]}`);
-		}
+		// for (let i = 0; i < ownerid.length; i++) {
+		// 	console.log(`https://ipfs.io/${base_uri}${config["metadata"].owner[i]}`);
+		// }
 		//console.log(`https://ipfs.io/${base_uri}${config["metadata"].owner[0]}`);
 
 		setMaxSupply(await nft.maxSupply());

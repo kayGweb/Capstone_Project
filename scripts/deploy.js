@@ -6,6 +6,9 @@
 // global scope, and execute the script.
 const hre = require("hardhat");
 
+//Config for network and contracts
+const config = require("../src/config.json");
+
 async function main() {
 	//
 	const WtPLS = "0x70499adEBB11Efd915E3b69E700c331778628707";
