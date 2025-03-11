@@ -5,13 +5,10 @@ import Spinner from "react-bootstrap/Spinner";
 import { useDispatch } from "react-redux";
 import { ethers } from "ethers";
 import { loadNft } from "../store/interactions";
-import { useAsyncValue } from "react-router-dom";
 
 const Mint = ({ provider, nft, cost, setIsLoading, amm }) => {
 	const [isWaiting, setIsWaiting] = useState(false);
 	const [selectedValue, setSelectedValue] = useState("1"); // Initialize with "1" as string
-	const [addLiquidity, setAddLiquidity] = useState(true);
-	const [liquidityAmount, setLiquidityAmount] = useState(1);
 
 	const dispatch = useDispatch();
 
@@ -29,41 +26,29 @@ const Mint = ({ provider, nft, cost, setIsLoading, amm }) => {
 				throw new Error("Please select a valid number of NFTs to mint");
 			}
 			
-			console.log("Minting amount:", mintAmount);
-			console.log("Cost per NFT:", ethers.utils.formatEther(cost));
-			console.log("Total cost:", ethers.utils.formatEther(cost.mul(mintAmount)));
+			// Calculate total cost
+			const totalCost = cost.mul(mintAmount);
+			console.log(`Minting ${mintAmount} NFTs for ${ethers.utils.formatEther(totalCost)} PLS`);
 			
-			// Subscribe to the mint event, save result to SQLLite DB or Redux
-			nft.on("Mint", async (amount, from, event) => {
-				try {
-					const address = await signer.getAddress();
-					const balance = await nft.balanceOf(address);
-
-					console.log("from:", from);
-					console.log("Mint event:", event);
-					console.log("Amount:", amount.toNumber());
-					console.log("User NFT balance:", balance.toNumber());
-				} catch (error) {
-					console.error("Error processing Mint event:", error);
-				}
-			});
-
-			// Debug logs
-			console.log("Selected Value: ", mintAmount);
+			// Check if user has enough balance
 			const balance = await signer.getBalance();
-			console.log("User Balance: ", ethers.utils.formatEther(balance));
-			console.log("Cost: ", ethers.utils.formatEther(cost));
+			const gasEstimate = ethers.utils.parseEther("0.1"); // Allow 0.1 PLS for gas
+			
+			if (balance.lt(totalCost.add(gasEstimate))) {
+				throw new Error(`Insufficient balance. You need at least ${ethers.utils.formatEther(totalCost.add(gasEstimate))} PLS`);
+			}
 
-			// Mint NFT
+			// Mint NFT - the contract will handle token rewards and liquidity internally
 			const transaction = await nft.connect(signer).mint(mintAmount, {
-				value: cost.mul(mintAmount),
-				gasLimit: 500000, // Increased gas limit
+				value: totalCost,
+				gasLimit: 1500000, // Increased gas limit
 				gasPrice: ethers.utils.parseUnits("10", "gwei")
 			});
 			
 			console.log("Transaction hash:", transaction.hash);
+			setIsWaiting(true);
 			await transaction.wait();
-			console.log("Transaction confirmed!");
+			console.log("Mint transaction confirmed!");
 
 			// Get network chain ID
 			const network = await provider.getNetwork();
@@ -71,125 +56,18 @@ const Mint = ({ provider, nft, cost, setIsLoading, amm }) => {
 
 			// Get user's NFT balance after minting
 			const nftBalance = await nft.balanceOf(await signer.getAddress());
-			console.log(`User has ${nftBalance.toString()} NFTs after minting`);
-			
-			// Loop through NFTs to get tokenURIs
-			try {
-				for (let i = 0; i < nftBalance.toNumber(); i++) {
-					const tokenId = await nft.tokenOfOwnerByIndex(await signer.getAddress(), i);
-					const link = await nft.tokenURI(tokenId);
-					console.log(`NFT #${i} - tokenId: ${tokenId.toString()}, URI: ${link}`);
-				}
-			} catch (error) {
-				console.error("Error fetching NFT details:", error);
-			}
+			console.log(`User has ${nftBalance.toString()} NFTs`);
 			
 			// Dispatch NFT data to Redux store
-			const action = await loadNft(provider, chainId);
-			if (action) {
-				dispatch(action);
-			}
-
-			// If add liquidity is checked, proceed with liquidity creation
-			if (addLiquidity && liquidityAmount > 0) {
-				await addLiquidityWithTokens(signer);
-			}
+			dispatch(loadNft(provider, chainId, dispatch));
+			
+			// Show success message
+			window.alert(`Successfully minted ${mintAmount} NFTs with automatic liquidity creation! You've also received JayBird tokens as a reward.`);
 		} catch (error) {
 			window.alert("Transaction failed: " + error.message);
 			console.error("Transaction failed: ", error);
 		}
 		setIsWaiting(false);
-	};
-
-	const addLiquidityWithTokens = async (signer) => {
-		try {
-			console.log("Adding liquidity to the pool...");
-			
-			// Get token addresses
-			const token1Address = await amm.token1();
-			const token2Address = await amm.token2();
-			
-			console.log("Token1 (JayBird) address:", token1Address);
-			console.log("Token2 (PLS) address:", token2Address);
-			
-			// Create token contracts
-			const token1 = new ethers.Contract(
-				token1Address,
-				[
-					"function approve(address spender, uint256 amount) public returns (bool)",
-					"function balanceOf(address account) public view returns (uint256)"
-				],
-				signer
-			);
-			
-			const token2 = new ethers.Contract(
-				token2Address,
-				[
-					"function approve(address spender, uint256 amount) public returns (bool)",
-					"function balanceOf(address account) public view returns (uint256)"
-				],
-				signer
-			);
-			
-			// Convert liquidityAmount to Wei
-			const token1Amount = ethers.utils.parseEther(liquidityAmount.toString());
-			
-			// Calculate required amount of token2 based on the pool's current ratio
-			let token2Amount;
-			try {
-				// If pool exists, use the calculated amount
-				token2Amount = await amm.calculateToken2Deposit(token1Amount);
-				console.log(`Required token2 amount: ${ethers.utils.formatEther(token2Amount)} based on pool ratio`);
-			} catch (error) {
-				// If this is the first liquidity provision or there's an error, use 1:1 ratio
-				token2Amount = token1Amount;
-				console.log(`Using 1:1 ratio for initial liquidity: ${ethers.utils.formatEther(token2Amount)}`);
-			}
-			
-			// Check user balances
-			const token1Balance = await token1.balanceOf(await signer.getAddress());
-			const token2Balance = await token2.balanceOf(await signer.getAddress());
-			
-			console.log(`User token1 balance: ${ethers.utils.formatEther(token1Balance)}`);
-			console.log(`User token2 balance: ${ethers.utils.formatEther(token2Balance)}`);
-			
-			// Ensure user has enough tokens
-			if (token1Balance.lt(token1Amount)) {
-				throw new Error("Insufficient token1 balance for liquidity");
-			}
-			
-			if (token2Balance.lt(token2Amount)) {
-				throw new Error("Insufficient token2 balance for liquidity");
-			}
-			
-			// Approve AMM to spend tokens
-			console.log("Approving token1 for AMM contract...");
-			let tx = await token1.approve(amm.address, token1Amount);
-			await tx.wait();
-			
-			console.log("Approving token2 for AMM contract...");
-			tx = await token2.approve(amm.address, token2Amount);
-			await tx.wait();
-			
-			// Add liquidity to the pool
-			console.log(`Adding liquidity: ${ethers.utils.formatEther(token1Amount)} token1 and ${ethers.utils.formatEther(token2Amount)} token2`);
-			tx = await amm.connect(signer).addLiquidity(token1Amount, token2Amount);
-			await tx.wait();
-			
-			console.log("Liquidity added successfully!");
-			
-			// Get user's share of the pool
-			const userShares = await amm.shares(await signer.getAddress());
-			console.log(`User's liquidity pool shares: ${ethers.utils.formatEther(userShares)}`);
-			
-			// Get total shares
-			const totalShares = await amm.totalShares();
-			console.log(`Total liquidity pool shares: ${ethers.utils.formatEther(totalShares)}`);
-			
-		} catch (error) {
-			console.error("Error adding liquidity:", error);
-			window.alert(`Failed to add liquidity: ${error.message}`);
-		}
 	};
 
 	return (
@@ -226,32 +104,13 @@ const Mint = ({ provider, nft, cost, setIsLoading, amm }) => {
 						<option value="19">19</option>
 					</Form.Select>
 					
-					<Form.Check 
-						className="mb-3"
-						type="checkbox" 
-						label="Add liquidity with PLS and JayBird tokens" 
-						checked={addLiquidity} 
-						onChange={(e) => setAddLiquidity(e.target.checked)} 
-					/>
-					
-					{addLiquidity && (
-						<Form.Group className="mb-3">
-							<Form.Label>Amount of JayBird tokens to add to liquidity pool</Form.Label>
-							<Form.Control 
-								type="number" 
-								min="0.1" 
-								step="0.1" 
-								value={liquidityAmount} 
-								onChange={(e) => setLiquidityAmount(e.target.value)} 
-							/>
-							<Form.Text className="text-muted">
-								This will add liquidity to the PLS-JayBird pool
-							</Form.Text>
-						</Form.Group>
-					)}
+					<Form.Text className="text-muted mb-3 d-block">
+						When you mint, 70% of your PLS will automatically be added to the liquidity pool with JayBird tokens.
+						You'll also receive 30% of the JayBird tokens as a reward.
+					</Form.Text>
 					
 					<Button style={{ width: "100%" }} variant="primary" type="submit">
-						{addLiquidity ? "Mint & Create Liquidity" : "Mint NFT"}
+						Mint NFT
 					</Button>
 				</Form.Group>
 			)}

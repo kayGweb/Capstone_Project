@@ -5,6 +5,12 @@ import "hardhat/console.sol";
 import "./JayBird.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
+interface IWETH {
+    function deposit() external payable;
+    function transfer(address to, uint value) external returns (bool);
+    function withdraw(uint) external;
+}
+
 contract AMM {
     JayBird public token1;
     IERC20 public token2;
@@ -26,17 +32,79 @@ contract AMM {
         uint256 token2Balance,
         uint256 timestamp
     );
+    
+    event LiquidityAdded(
+        address provider,
+        uint256 token1Amount,
+        uint256 token2Amount,
+        uint256 newShares,
+        uint256 timestamp
+    );
 
     constructor(JayBird _token1, IERC20 _token2) {
         token1 = _token1;
         token2 = IERC20(_token2);
-        //IERC20 public wrappedToken = IERC20(0x70499adEBB11Efd915E3b69E700c331778628707);
+    }
+    
+    // Allow this contract to receive PLS (useful for direct liquidity addition)
+    receive() external payable {
+        // Handle received ETH if needed
+        // This enables users to send ETH directly to this contract
+        emit LiquidityAdded(msg.sender, 0, msg.value, 0, block.timestamp);
+    }
+    
+    // Function to add liquidity with native token
+    function addLiquidityETH(uint256 _token1Amount) external payable {
+        require(msg.value > 0, "Must send ETH for liquidity");
+        
+        // Convert ETH to WETH if token2 is WETH
+        try IWETH(address(token2)).deposit{value: msg.value}() {
+            // Successfully converted ETH to WETH
+            
+            // Transfer token1 from the user
+            require(
+                token1.transferFrom(msg.sender, address(this), _token1Amount),
+                "failed to transfer token 1"
+            );
+            
+            // Now add the liquidity using the wrapped ETH
+            _addLiquidity(_token1Amount, msg.value);
+        } catch {
+            // If token2 is not WETH or the conversion failed, revert
+            revert("Failed to wrap ETH. Token2 might not be WETH");
+        }
     }
 
+    // Public function to add liquidity using ERC20 tokens
     function addLiquidity(
         uint256 _token1Amount,
         uint256 _token2Amount
-    ) external {
+    ) external payable {
+        // If msg.value is provided, handle it directly
+        if (msg.value > 0) {
+            // ETH is sent directly with this call
+            require(msg.value == _token2Amount, "Value must match token2 amount");
+            
+            // Convert ETH to WETH if token2 is WETH
+            try IWETH(address(token2)).deposit{value: msg.value}() {
+                // Successfully converted ETH to WETH
+                
+                // Transfer token1 from the user
+                require(
+                    token1.transferFrom(msg.sender, address(this), _token1Amount),
+                    "failed to transfer token 1"
+                );
+                
+                // Now add the liquidity using the wrapped ETH
+                _addLiquidity(_token1Amount, msg.value);
+                return;
+            } catch {
+                // If token2 is not WETH or the conversion failed, revert
+                revert("Failed to wrap ETH. Token2 might not be WETH");
+            }
+        }
+        
+        // Standard ERC20 liquidity addition
         require(
             token1.transferFrom(msg.sender, address(this), _token1Amount),
             "failed to transfer token 1"
@@ -46,6 +114,15 @@ contract AMM {
             "failed to transfer token 2"
         );
 
+        // Add liquidity using internal function
+        _addLiquidity(_token1Amount, _token2Amount);
+    }
+    
+    // Internal function to handle liquidity addition logic
+    function _addLiquidity(
+        uint256 _token1Amount,
+        uint256 _token2Amount
+    ) internal {
         uint256 share;
         if (totalShares == 0) {
             share = 100 * PRECISION;
@@ -65,6 +142,14 @@ contract AMM {
 
         totalShares += share;
         shares[msg.sender] += share;
+        
+        emit LiquidityAdded(
+            msg.sender,
+            _token1Amount,
+            _token2Amount,
+            share,
+            block.timestamp
+        );
     }
 
     function calculateToken2Deposit(

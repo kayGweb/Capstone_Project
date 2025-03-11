@@ -52,18 +52,25 @@ export const loadAccount = async (dispatch) => {
 	return account;
 };
 
-export const loadNft = async (provider, chainId) => {
-	try {
-		const nft = new ethers.Contract(config[chainId].nft.address, NFT_ABI, provider);
-		const baseUri = await nft.baseURI();
-		
-		return async (dispatch) => {
-			dispatch(setNft(nft));
-			dispatch(setBaseUri(baseUri));
-		};
-	} catch (error) {
-		console.error('Error loading NFT:', error);
-	}
+export const loadNft = (provider, chainId) => {
+	return async (dispatch) => {
+		try {
+			const nft = new ethers.Contract(config[chainId].nft.address, NFT_ABI, provider);
+			const baseUri = await nft.baseURI();
+			
+			dispatch({
+				type: 'nfts/setNft',
+				payload: nft
+			});
+			
+			dispatch({
+				type: 'nfts/setBaseUri',
+				payload: baseUri
+			});
+		} catch (error) {
+			console.error('Error loading NFT:', error);
+		}
+	};
 };
 
 export const addLiquidity = async (provider, amm, token1Amount, token2Amount) => {

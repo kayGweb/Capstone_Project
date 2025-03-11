@@ -2,7 +2,11 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const nftSlice = createSlice({
 	name: "nfts",
-	initialState: [],
+	initialState: {
+		nft: null,
+		baseUri: null,
+		nftMintDate: null
+	},
 	reducers: {
 		setNft: (state, action) => {
 			state.nft = action.payload;
